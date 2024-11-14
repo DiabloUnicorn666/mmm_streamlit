@@ -9,12 +9,16 @@ payout_max_multiplier = st.number_input("Максимальный коэффиц
 initial_deposit = st.number_input("Вклад:", min_value=1, value=5)
 num_users = st.number_input("Количество пользователей:", min_value=1, value=1)
 commission = st.number_input("Комиссия (%):", min_value=0, max_value=100, value=20)
+first_parent = st.number_input("(%) Вознаграждение Родитель первого уровня:", min_value=0.0, value=1.0, step=0.5)
+second_parent = st.number_input("(%) Вознаграждение Родитель второго уровня:", min_value=0.0, value=0.5, step=0.5)
 use_str = st.checkbox("Показывать строки пользователей:", value=False)
 
 # Расчет вкладов и переменных
 bank_sum = num_users * initial_deposit
 commission_amount = (commission / 100) * bank_sum
-in_bank = bank_sum - commission_amount
+first_parent_amount = (first_parent / 100) * bank_sum
+second_parent_amount = (second_parent / 100) * bank_sum
+in_bank = bank_sum - commission_amount - second_parent_amount - first_parent_amount
 payout = 0.0
 
 # Генерация случайных коэффициентов выплат для каждого пользователя
@@ -55,5 +59,7 @@ st.pyplot(fig)
 # Вывод информации
 st.write(f"Сумма всех вкладов (bank_sum): {bank_sum:.2f} TON")
 st.write(f"Сумма комиссии (commission_amount): {commission_amount:.2f} TON")
+st.write(f"На вознаграждение первого уровня: {first_parent_amount:.2f} TON")
+st.write(f"На вознаграждение второго уровня: {second_parent_amount:.2f} TON")
 st.write(f"Сумма всех выплат (payout): {payout:.2f} TON")
 st.write(f"Сумма в банке (in_bank): {in_bank:.2f} TON")
