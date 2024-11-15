@@ -4,13 +4,13 @@ import matplotlib.pyplot as plt
 
 
 # Ввод количество пользователей и комиссии
-payout_min_multiplier = st.number_input("Минимальный коэффициент:", min_value=1.5, value=1.5, step=0.1)
-payout_max_multiplier = st.number_input("Максимальный коэффициент:", min_value=1.6, value=2.0, step=0.1)
+payout_min_multiplier = st.number_input("Минимальный коэффициент:", min_value=0.0, value=1.5, step=0.1)
+payout_max_multiplier = st.number_input("Максимальный коэффициент:", min_value=0.0, value=2.0, step=0.1)
 initial_deposit = st.number_input("Вклад:", min_value=1, value=5)
-num_users = st.number_input("Количество пользователей:", min_value=1, value=1)
+num_users = st.number_input("Количество пользователей:", min_value=1, value=10)
 commission = st.number_input("Комиссия (%):", min_value=0, max_value=100, value=20)
-first_parent = st.number_input("(%) Вознаграждение Родитель первого уровня:", min_value=0.0, value=1.0, step=0.5)
-second_parent = st.number_input("(%) Вознаграждение Родитель второго уровня:", min_value=0.0, value=0.5, step=0.5)
+first_parent = st.number_input("(%) Вознаграждение Родитель первого уровня:", min_value=0.0, value=1.0, step=0.1)
+second_parent = st.number_input("(%) Вознаграждение Родитель второго уровня:", min_value=0.0, value=0.5, step=0.1)
 use_str = st.checkbox("Показывать строки пользователей:", value=False)
 
 # Расчет вкладов и переменных
@@ -23,6 +23,7 @@ payout = 0.0
 
 # Генерация случайных коэффициентов выплат для каждого пользователя
 payout_multipliers = [round(random.uniform(payout_min_multiplier, payout_max_multiplier), 1) for _ in range(num_users)]
+
 
 # Статистика выплат
 received_payout_count = 0
