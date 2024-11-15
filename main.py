@@ -1,11 +1,12 @@
 import streamlit as st
 import random
 import matplotlib.pyplot as plt
+import statistics
 
 
 # Ввод количество пользователей и комиссии
-payout_min_multiplier = st.number_input("Минимальный коэффициент:", min_value=0.0, value=1.5, step=0.1)
-payout_max_multiplier = st.number_input("Максимальный коэффициент:", min_value=0.0, value=2.0, step=0.1)
+payout_min_multiplier = st.number_input("Минимальный коэффициент:", min_value=0.0, value=1.5, step=0.01)
+payout_max_multiplier = st.number_input("Максимальный коэффициент:", min_value=0.0, value=2.0, step=0.01)
 initial_deposit = st.number_input("Вклад:", min_value=1, value=5)
 num_users = st.number_input("Количество пользователей:", min_value=1, value=10)
 commission = st.number_input("Комиссия (%):", min_value=0, max_value=100, value=20)
@@ -22,7 +23,11 @@ in_bank = bank_sum - commission_amount - second_parent_amount - first_parent_amo
 payout = 0.0
 
 # Генерация случайных коэффициентов выплат для каждого пользователя
-payout_multipliers = [round(random.uniform(payout_min_multiplier, payout_max_multiplier), 1) for _ in range(num_users)]
+# payout_multipliers = [round(random.uniform(payout_min_multiplier, payout_max_multiplier), 1) for _ in range(num_users)]
+payout_multipliers = [round(random.normalvariate(
+            mu=statistics.mean([payout_min_multiplier, payout_max_multiplier]),
+            sigma=0.1),
+        2) for _ in range(num_users)]
 
 
 # Статистика выплат
