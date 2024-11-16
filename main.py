@@ -22,8 +22,9 @@ first_parent = st.sidebar.number_input("(%) Вознаграждение Род�
 second_parent = st.sidebar.number_input("(%) Вознаграждение Родитель второго уровня:", min_value=0.0, value=0.5, step=0.1)
 
 use_random_payout_multiplier = st.sidebar.checkbox("Использовать случайный модификатор коэффициента выплат:", value=False)
-random_payout_multiplier_sigma = st.sidebar.number_input("Стандартное отклонение модификатора коэффициента выплат:", min_value=0.0, value=0.1, step=0.01)
-random_payout_multiplier_mu = st.sidebar.number_input("Среднее значение модификатора коэффициента выплат:", min_value=0.0, value=1.0, step=0.01)
+if use_random_payout_multiplier:
+    random_payout_multiplier_sigma = st.sidebar.number_input("Стандартное отклонение модификатора коэффициента выплат:", min_value=0.0, value=0.1, step=0.01)
+    random_payout_multiplier_mu = st.sidebar.number_input("Среднее значение модификатора коэффициента выплат:", min_value=0.0, value=1.0, step=0.01)
 
 use_str = st.sidebar.checkbox("Показывать строки пользователей:", value=False)
 
