@@ -8,8 +8,7 @@ import numpy as np
 
 st.sidebar.title("Параметры")
 
-if st.sidebar.checkbox("Широкий экран", value=False):
-    st.set_page_config(layout="wide")
+# st.set_page_config(layout="wide")
 
 # Ввод количество пользователей и комиссии
 seed = st.sidebar.number_input("Seed:", min_value=0, value=42)
