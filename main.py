@@ -5,9 +5,12 @@ import statistics
 import pandas as pd
 import numpy as np
 
-st.set_page_config(layout="wide")
 
 st.sidebar.title("Параметры")
+
+if st.sidebar.checkbox("Широкий экран", value=False):
+    st.set_page_config(layout="wide")
+
 # Ввод количество пользователей и комиссии
 seed = st.sidebar.number_input("Seed:", min_value=0, value=42)
 mean_followers = st.sidebar.number_input("Среднее количество подписчиков:", min_value=1, value=30)
