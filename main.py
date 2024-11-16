@@ -2,17 +2,39 @@ import streamlit as st
 import random
 import matplotlib.pyplot as plt
 import statistics
+import pandas as pd
+import numpy as np
 
 
+st.sidebar.title("Параметры")
 # Ввод количество пользователей и комиссии
-payout_min_multiplier = st.number_input("Минимальный коэффициент:", min_value=0.0, value=1.5, step=0.01)
-payout_max_multiplier = st.number_input("Максимальный коэффициент:", min_value=0.0, value=2.0, step=0.01)
-initial_deposit = st.number_input("Вклад:", min_value=1, value=5)
-num_users = st.number_input("Количество пользователей:", min_value=1, value=10)
-commission = st.number_input("Комиссия (%):", min_value=0, max_value=100, value=20)
-first_parent = st.number_input("(%) Вознаграждение Родитель первого уровня:", min_value=0.0, value=1.0, step=0.1)
-second_parent = st.number_input("(%) Вознаграждение Родитель второго уровня:", min_value=0.0, value=0.5, step=0.1)
-use_str = st.checkbox("Показывать строки пользователей:", value=False)
+seed = st.sidebar.number_input("Seed:", min_value=0, value=42)
+payout_min_multiplier = st.sidebar.number_input("Минимальный коэффициент:", min_value=0.0, value=1.3, step=0.01)
+payout_max_multiplier = st.sidebar.number_input("Максимальный коэффициент:", min_value=0.0, value=2.0, step=0.01)
+initial_deposit = st.sidebar.number_input("Вклад:", min_value=1, value=5)
+num_users = st.sidebar.number_input("Количество пользователей:", min_value=1, value=10000)
+max_followers = st.sidebar.number_input("Максимальное количество подписчиков:", min_value=1, value=100)
+commission = st.sidebar.number_input("Комиссия (%):", min_value=0, max_value=100, value=20)
+first_parent = st.sidebar.number_input("(%) Вознаграждение Родитель первого уровня:", min_value=0.0, value=1.0, step=0.1)
+second_parent = st.sidebar.number_input("(%) Вознаграждение Родитель второго уровня:", min_value=0.0, value=0.5, step=0.1)
+use_str = st.sidebar.checkbox("Показывать строки пользователей:", value=False)
+
+def set_seed(seed):
+    np.random.seed(seed)
+    random.seed(seed)
+
+
+def calculate_payout_multiplier(followers:float):
+    # linear function capped by payout_min_multiplier and payout_max_multiplier
+    min_followers = 1.0
+    scale = min_followers / max_followers
+    result = followers* scale
+    # st.write(f"followers: {followers}, result: {result}")
+    # scale it to payout_min_multiplier and payout_max_multiplier
+    return result * (payout_max_multiplier - payout_min_multiplier) + payout_min_multiplier
+
+
+set_seed(seed)
 
 # Расчет вкладов и переменных
 bank_sum = num_users * initial_deposit
@@ -22,13 +44,21 @@ second_parent_amount = (second_parent / 100) * bank_sum
 in_bank = bank_sum - commission_amount - second_parent_amount - first_parent_amount
 payout = 0.0
 
-# Генерация случайных коэффициентов выплат для каждого пользователя
-# payout_multipliers = [round(random.uniform(payout_min_multiplier, payout_max_multiplier), 1) for _ in range(num_users)]
-payout_multipliers = [round(random.normalvariate(
-            mu=statistics.mean([payout_min_multiplier, payout_max_multiplier]),
-            sigma=0.1),
-        2) for _ in range(num_users)]
+followers = [min(100, max(1, round(random.normalvariate(mu=30, sigma=15), 0))) for _ in range(num_users)]
+df = pd.DataFrame(followers, columns=['Количество подписчиков'])
+st.pyplot(df.plot.hist(bins=10, edgecolor='black').figure)
 
+# # Генерация случайных коэффициентов выплат для каждого пользователя
+# # payout_multipliers = [round(random.uniform(payout_min_multiplier, payout_max_multiplier), 1) for _ in range(num_users)]
+# payout_multipliers = [round(random.normalvariate(
+#             mu=statistics.mean([payout_min_multiplier, payout_max_multiplier]),
+#             sigma=0.1),
+#         2) for _ in range(num_users)]
+
+payout_multipliers = [calculate_payout_multiplier(followers[i]) for i in range(num_users)]
+df = pd.DataFrame(payout_multipliers, columns=['Коэффициент выплат'])
+
+st.pyplot(df.plot.hist(bins=10, edgecolor='black').figure)
 
 # Статистика выплат
 received_payout_count = 0
