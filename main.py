@@ -5,10 +5,13 @@ import statistics
 import pandas as pd
 import numpy as np
 
+st.set_page_config(layout="wide")
 
 st.sidebar.title("Параметры")
 # Ввод количество пользователей и комиссии
 seed = st.sidebar.number_input("Seed:", min_value=0, value=42)
+mean_followers = st.sidebar.number_input("Среднее количество подписчиков:", min_value=1, value=30)
+sigma_followers = st.sidebar.number_input("Стандартное отклонение количества подписчиков:", min_value=1, value=15)
 payout_min_multiplier = st.sidebar.number_input("Минимальный коэффициент:", min_value=0.0, value=1.3, step=0.01)
 payout_max_multiplier = st.sidebar.number_input("Максимальный коэффициент:", min_value=0.0, value=2.0, step=0.01)
 initial_deposit = st.sidebar.number_input("Вклад:", min_value=1, value=5)
@@ -17,6 +20,11 @@ max_followers = st.sidebar.number_input("Максимальное количес
 commission = st.sidebar.number_input("Комиссия (%):", min_value=0, max_value=100, value=20)
 first_parent = st.sidebar.number_input("(%) Вознаграждение Родитель первого уровня:", min_value=0.0, value=1.0, step=0.1)
 second_parent = st.sidebar.number_input("(%) Вознаграждение Родитель второго уровня:", min_value=0.0, value=0.5, step=0.1)
+
+use_random_payout_multiplier = st.sidebar.checkbox("Использовать случайный модификатор коэффициента выплат:", value=False)
+random_payout_multiplier_sigma = st.sidebar.number_input("Стандартное отклонение модификатора коэффициента выплат:", min_value=0.0, value=0.1, step=0.01)
+random_payout_multiplier_mu = st.sidebar.number_input("Среднее значение модификатора коэффициента выплат:", min_value=0.0, value=1.0, step=0.01)
+
 use_str = st.sidebar.checkbox("Показывать строки пользователей:", value=False)
 
 def set_seed(seed):
@@ -31,7 +39,10 @@ def calculate_payout_multiplier(followers:float):
     result = followers* scale
     # st.write(f"followers: {followers}, result: {result}")
     # scale it to payout_min_multiplier and payout_max_multiplier
-    return result * (payout_max_multiplier - payout_min_multiplier) + payout_min_multiplier
+    result = result * (payout_max_multiplier - payout_min_multiplier) + payout_min_multiplier
+    if use_random_payout_multiplier:
+        result = result + random.normalvariate(mu=random_payout_multiplier_mu, sigma=random_payout_multiplier_sigma)
+    return result
 
 
 set_seed(seed)
@@ -44,7 +55,7 @@ second_parent_amount = (second_parent / 100) * bank_sum
 in_bank = bank_sum - commission_amount - second_parent_amount - first_parent_amount
 payout = 0.0
 
-followers = [min(100, max(1, round(random.normalvariate(mu=30, sigma=15), 0))) for _ in range(num_users)]
+followers = [min(100, max(1, round(random.normalvariate(mu=mean_followers, sigma=sigma_followers), 0))) for _ in range(num_users)]
 df = pd.DataFrame(followers, columns=['Количество подписчиков'])
 st.pyplot(df.plot.hist(bins=10, edgecolor='black').figure)
 
@@ -54,6 +65,11 @@ st.pyplot(df.plot.hist(bins=10, edgecolor='black').figure)
 #             mu=statistics.mean([payout_min_multiplier, payout_max_multiplier]),
 #             sigma=0.1),
 #         2) for _ in range(num_users)]
+
+if use_random_payout_multiplier:
+    random_payout_multiplier_varoations = [random.normalvariate(mu=random_payout_multiplier_mu, sigma=random_payout_multiplier_sigma) for _ in range(num_users)]
+    df = pd.DataFrame(random_payout_multiplier_varoations, columns=['Модификатор коэффициента выплат'])
+    st.pyplot(df.plot.hist(bins=10, edgecolor='black').figure)
 
 payout_multipliers = [calculate_payout_multiplier(followers[i]) for i in range(num_users)]
 df = pd.DataFrame(payout_multipliers, columns=['Коэффициент выплат'])
