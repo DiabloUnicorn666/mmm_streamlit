@@ -24,7 +24,7 @@ second_parent = st.sidebar.number_input("(%) Вознаграждение Род
 use_random_payout_multiplier = st.sidebar.checkbox("Использовать случайный модификатор коэффициента выплат:", value=False)
 if use_random_payout_multiplier:
     random_payout_multiplier_sigma = st.sidebar.number_input("Стандартное отклонение модификатора коэффициента выплат:", min_value=0.0, value=0.1, step=0.01)
-    random_payout_multiplier_mu = st.sidebar.number_input("Среднее значение модификатора коэффициента выплат:", min_value=0.0, value=1.0, step=0.01)
+    random_payout_multiplier_mu = st.sidebar.number_input("Среднее значение модификатора коэффициента выплат:", min_value=0.0, value=0.01, step=0.01)
 
 use_str = st.sidebar.checkbox("Показывать строки пользователей:", value=False)
 
@@ -80,6 +80,7 @@ st.pyplot(df.plot.hist(bins=10, edgecolor='black').figure)
 # Статистика выплат
 received_payout_count = 0
 not_received_payout_count = num_users
+payout_amounts = []
 
 # Расчет автоматических выплат
 for i in range(num_users):
@@ -90,9 +91,11 @@ for i in range(num_users):
         payout += payout_amount   # Записываем в payout
         received_payout_count += 1
         not_received_payout_count -= 1
+        payout_amounts.append(payout_amount)
         if use_str:
             st.success(f"Пользователю {i+1} выплачено: {payout_amount:.2f} TON (коэффициент: {payout_multipliers[i]})")
     else:
+        payout_amounts.append(0)
         if use_str:
             st.error(f"Недостаточно средств в банке для выплаты пользователю {i + 1}")
 
@@ -115,4 +118,9 @@ st.write(f"Сумма комиссии (commission_amount): {commission_amount:.
 st.write(f"На вознаграждение первого уровня: {first_parent_amount:.2f} TON")
 st.write(f"На вознаграждение второго уровня: {second_parent_amount:.2f} TON")
 st.write(f"Сумма всех выплат (payout): {payout:.2f} TON")
+st.write(f"Количество пользователей, получивших выплату: {received_payout_count}")
+st.write(f"Количество пользователей, не получивших выплату: {not_received_payout_count}")
 st.write(f"Сумма в банке (in_bank): {in_bank:.2f} TON")
+
+df = pd.DataFrame(payout_amounts, columns=['Сумма выплаты'])
+st.pyplot(df.plot.hist(bins=10, edgecolor='black').figure)
