@@ -20,6 +20,7 @@ max_followers = st.sidebar.number_input("Максимальное количес
 commission = st.sidebar.number_input("Комиссия (%):", min_value=0, max_value=100, value=20)
 first_parent = st.sidebar.number_input("(%) Вознаграждение Родитель первого уровня:", min_value=0.0, value=1.0, step=0.1)
 second_parent = st.sidebar.number_input("(%) Вознаграждение Родитель второго уровня:", min_value=0.0, value=0.5, step=0.1)
+show_zero_payout = st.sidebar.checkbox("Показывать выплаты равные 0:", value=False)
 
 use_random_payout_multiplier = st.sidebar.checkbox("Использовать случайный модификатор коэффициента выплат:", value=False)
 if use_random_payout_multiplier:
@@ -112,6 +113,12 @@ ax.axis('equal')  # Равные оси для правильного отобр
 # Отображение графика
 st.pyplot(fig)
 
+df = pd.DataFrame(payout_amounts, columns=['Сумма выплаты'])
+if not show_zero_payout:
+    df = df[df['Сумма выплаты'] > 0]
+st.pyplot(df.plot.hist(bins=100, edgecolor='black').figure)
+
+
 # Вывод информации
 st.write(f"Сумма всех вкладов (bank_sum): {bank_sum:.2f} TON")
 st.write(f"Сумма комиссии (commission_amount): {commission_amount:.2f} TON")
@@ -122,5 +129,3 @@ st.write(f"Количество пользователей, получивших
 st.write(f"Количество пользователей, не получивших выплату: {not_received_payout_count}")
 st.write(f"Сумма в банке (in_bank): {in_bank:.2f} TON")
 
-df = pd.DataFrame(payout_amounts, columns=['Сумма выплаты'])
-st.pyplot(df.plot.hist(bins=10, edgecolor='black').figure)
